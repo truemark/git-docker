@@ -14,6 +14,6 @@ docker buildx build \
   --build-arg GIT_VERSION="${GIT_VERSION}" \
   --build-arg GIT_CRYPT_VERSION="${GIT_CRYPT_VERSION}" \
   --push \
-  --platform linux/arm64/v8,linux/amd64 \
+  --platform linux/arm64,linux/amd64 \
   -f amazonlinux.Dockerfile \
   -t truemark/git:amazonlinux-2-beta .
