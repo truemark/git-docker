@@ -16,7 +16,10 @@ docker buildx build \
   --build-arg GIT_VERSION="${GIT_VERSION}" \
   --platform linux/arm64 \
   -f amazonlinux.Dockerfile \
-  -t truemark/git:amazonlinux-2-local .
+  -t truemark/git:amazonlinux-beta-${GIT_VERSION} \
+  -t truemark/git:amazonlinux-beta \
+  -t truemark/git:beta \
+  .
 
 docker buildx build \
   --push \
@@ -25,4 +28,6 @@ docker buildx build \
   --build-arg GIT_VERSION="${GIT_VERSION}" \
   --platform linux/arm64 \
   -f alpine.Dockerfile \
-  -t truemark/git:alpine-local .
+  -t truemark/git:alpine-beta-${GIT_VERSION} \
+  -t truemark/git:alpine-beta \
+  .
