@@ -3,6 +3,8 @@ python-venv
 notes.txt
 admin
 *.sw?
+*.gz
+*.tar
 
 # Byte-compiled / optimized / DLL files
 __pycache__/

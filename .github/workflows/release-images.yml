@@ -29,24 +29,31 @@ jobs:
         uses: docker/setup-buildx-action@v2
       - name: Build
         run: |
-          export GIT_VERSION=$(curl -sSL https://api.github.com/repos/git/git/tags | jq -r "[.[].name | select(contains(\"-rc\") | not)] | .[0]")
+          export GIT_VERSION=$(curl -sSL https://api.github.com/repos/git/git/tags | jq -r "[.[].name | select(contains(\"-rc\") | not)] | .[0] | sub(\"v\";\"\")")
           docker buildx build \
             --build-arg GIT_VERSION="${GIT_VERSION}" \
             --push \
             --platform linux/arm64,linux/amd64 \
             -f amazonlinux.Dockerfile \
-            -t truemark/git:amazonlinux-${GIT_VERSION} \
-            -t truemark/git:amazonlinux \
             -t truemark/git:${GIT_VERSION} \
             -t truemark/git:latest \
             .
+          IMAGE="truemark/git:${GIT_VERSION}" ARCH="amd64" FILE="git-${GIT_VERSION}-linux-amd64.tar" ./getlayer.sh
+          IMAGE="truemark/git:${GIT_VERSION}" ARCH="arm64" FILE="git-${GIT_VERSION}-linux-arm64.tar" ./getlayer.sh
           docker buildx build \
             --build-arg GIT_VERSION="${GIT_VERSION}" \
             --push \
             --platform linux/arm64,linux/amd64 \
             -f alpine.Dockerfile \
-            -t truemark/git:alpine-${GIT_VERSION} \
-            -t truemark/git:alpine \
+            -t truemark/git:musl-${GIT_VERSION} \
+            -t truemark/git:musl \
             .
+          IMAGE="truemark/git:musl-${GIT_VERSION}" ARCH="amd64" FILE="git-musl-${GIT_VERSION}-linux-amd64.tar" ./getlayer.sh
+          IMAGE="truemark/git:musl-${GIT_VERSION}" ARCH="arm64" FILE="git-musl-${GIT_VERSION}-linux-arm64.tar" ./getlayer.sh
+      - uses: actions/upload-artifact@v3
+        with:
+          name: files
+          path: |
+            *.tar.gz
       - name: Keepalive
         uses: gautamkrishnar/keepalive-workflow@v1
