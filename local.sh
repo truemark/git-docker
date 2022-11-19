@@ -8,14 +8,21 @@ set -euo pipefail
 
 export GIT_VERSION=$(curl -sSL https://api.github.com/repos/git/git/tags | jq -r "[.[].name | select(contains(\"-rc\") | not)] | .[0]")
 echo "Using git version ${GIT_VERSION}"
-export GIT_CRYPT_VERSION=$(curl -sSL https://api.github.com/repos/AGWA/git-crypt/tags | jq -r "[.[].name | select(contains(\"debian\") | not)] | .[0]")
-echo "Using git-crypt version ${GIT_CRYPT_VERSION}"
 
 docker buildx build \
-  --builder beta \
-  --build-arg GIT_VERSION="${GIT_VERSION}" \
-  --build-arg GIT_CRYPT_VERSION="${GIT_CRYPT_VERSION}" \
   --push \
   --platform linux/arm64,linux/amd64 \
+  --builder beta \
+  --build-arg GIT_VERSION="${GIT_VERSION}" \
+  --platform linux/arm64 \
   -f amazonlinux.Dockerfile \
-  -t truemark/git:amazonlinux-2-beta .
+  -t truemark/git:amazonlinux-2-local .
+
+docker buildx build \
+  --push \
+  --platform linux/arm64,linux/amd64 \
+  --builder beta \
+  --build-arg GIT_VERSION="${GIT_VERSION}" \
+  --platform linux/arm64 \
+  -f alpine.Dockerfile \
+  -t truemark/git:alpine-local .
