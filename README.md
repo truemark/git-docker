@@ -1,24 +1,24 @@
-# GIT Docker Image
+# GIT
 
-Many Linux distributions have large dependencies on in their git packages which
-are undesirable when building small optimized docker images. This project
-aims to build a minimal git and git-crypt binaries inside a docker image you
-can use to copy into your own docker images without needing the distribution
-provided git package.
+This project produces git binaries and docker images using sources located at
+https://github.com/git/git with the following goals:
 
-## How do I use this image?
+ * Provide an easy way to get the latest version of git
+ * Provide both glibc and musl linked versions of git
+ * Provide amd64 and arm64 versions of git for Linux
+ * Reduce unwanted dependencies by not using a package manager
 
-To include git and git-crypt from this image into your docker image, insert
-the following code into your Dockerfile.
+## How do I get the latest version of git into my docker image?
 
+For glibc based distributions, add the following to your Dockerfile
 ```
-COPY --from=truemark/git:amazonlinux-2 /usr/local/ /usr/local/
+COPY --from=truemark/git:latest /usr/local/ /usr/local/
 ```
 
-Replace the "amazonlinux-2" part of the tag with the distribution that best
-matches the base docker image you are using. If there isn't a distribution
-that works for your use case, submit an Issue requesting it to
-https://github.com/truemark/git-docker/issues.
+For musl based distributions, like Alpine Linux, add the following to your Dockerfile
+```
+COPY --from=truemark/git:latest-musl /usr/local/ /usr/local/
+```
 
 ## Maintainers
 
@@ -26,7 +26,7 @@ https://github.com/truemark/git-docker/issues.
 
 ## License
 
-The contents of this repository are under the BSD 3-Clause license. See the
+The contents of this repository are released under the BSD 3-Clause license. See the
 license [here](https://github.com/truemark/git-docker/blob/main/LICENSE.txt).
 
 
