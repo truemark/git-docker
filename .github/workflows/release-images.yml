@@ -38,3 +38,5 @@ jobs:
             -t truemark/git:amazonlinux-2 \
             -t truemark/git:latest \
             .
+      - name: Keepalive
+        uses: gautamkrishnar/keepalive-workflow@v1
