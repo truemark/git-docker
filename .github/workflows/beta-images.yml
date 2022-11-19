@@ -33,6 +33,8 @@ jobs:
             --push \
             --platform linux/arm64,linux/amd64 \
             -f amazonlinux.Dockerfile \
+            -t truemark/git:amazonlinux-2-beta-${{github.run_number}} \
             -t truemark/git:amazonlinux-2-beta \
+            -t truemark/git:beta-${{github.run_number}} \
             -t truemark/git:beta \
             .

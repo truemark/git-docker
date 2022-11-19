@@ -35,7 +35,9 @@ jobs:
             --push \
             --platform linux/arm64,linux/amd64 \
             -f amazonlinux.Dockerfile \
+            -t truemark/git:amazonlinux-2-${{github.run_number}} \
             -t truemark/git:amazonlinux-2 \
+            -t truemark/git:${{github.run_number}} \
             -t truemark/git:latest \
             .
       - name: Keepalive
