@@ -27,6 +27,13 @@ jobs:
       - name: Set up Docker Buildx
         id: buildx
         uses: docker/setup-buildx-action@v2
+      - name: Get Version
+        id: version
+        run: |
+          export GIT_VERSION=$(curl -sSL https://api.github.com/repos/git/git/tags | jq -r "[.[].name | select(contains(\"-rc\") | not)] | .[0] | sub(\"v\";\"\")")
+          echo "GIT_VERSION=${GIT_VERSION}" >> $GITHUB_ENV
+          export TAG_EXISTS=$(curl -sSL https://api.github.com/repos/truemark/git-docker/tags | jq -r ".[].name | contains(\"beta-${GIT_CRYPT_VERSION}\")")
+          echo "TAG_EXISTS=${TAG_EXISTS}" >> $GITHUB_ENV
       - name: Build
         run: |
           export GIT_VERSION=$(curl -sSL https://api.github.com/repos/git/git/tags | jq -r "[.[].name | select(contains(\"-rc\") | not)] | .[0] | sub(\"v\";\"\")")
@@ -55,5 +62,16 @@ jobs:
           name: files
           path: |
             *.tar.gz
+      - name: Upload binaries to release
+        if: ${{ env.TAG_EXISTS != 'true' }}
+        uses: svenstaro/upload-release-action@v2
+        with:
+          repo_token: ${{ secrets.GITHUB_TOKEN }}
+          file_glob: true
+          file: |
+            *.tar.gz
+          release_name: ${{env.GIT_CRYPT_VERSION}}
+          tag: ${{env.GIT_CRYPT_VERSION}}
+          overwrite: true
       - name: Keepalive
         uses: gautamkrishnar/keepalive-workflow@v1

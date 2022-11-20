@@ -24,9 +24,16 @@ jobs:
       - name: Set up Docker Buildx
         id: buildx
         uses: docker/setup-buildx-action@v2
-      - name: Build
+      - name: Get Version
+        id: version
         run: |
           export GIT_VERSION=$(curl -sSL https://api.github.com/repos/git/git/tags | jq -r "[.[].name | select(contains(\"-rc\") | not)] | .[0] | sub(\"v\";\"\")")
+          echo "GIT_VERSION=${GIT_VERSION}" >> $GITHUB_ENV
+          export TAG_EXISTS=$(curl -sSL https://api.github.com/repos/truemark/git-docker/tags | jq -r ".[].name | contains(\"beta-${GIT_CRYPT_VERSION}\")")
+          echo "TAG_EXISTS=${TAG_EXISTS}" >> $GITHUB_ENV
+      - name: Build
+        if: ${{ env.TAG_EXISTS != 'true' }}
+        run: |
           docker buildx build \
             --build-arg GIT_VERSION="${GIT_VERSION}" \
             --push \
@@ -42,13 +49,26 @@ jobs:
             --push \
             --platform linux/arm64,linux/amd64 \
             -f alpine.Dockerfile \
-            -t truemark/git:beta-musl-${GIT_VERSION} \
+            -t truemark/git:beta-${GIT_VERSION}-musl \
             -t truemark/git:beta-musl \
             .
-          IMAGE="truemark/git:beta-musl-${GIT_VERSION}" ARCH="amd64" FILE="git-musl-${GIT_VERSION}-linux-amd64.tar" ./getlayer.sh
-          IMAGE="truemark/git:beta-musl-${GIT_VERSION}" ARCH="arm64" FILE="git-musl-${GIT_VERSION}-linux-arm64.tar" ./getlayer.sh
-      - uses: actions/upload-artifact@v3
+          IMAGE="truemark/git:beta-${GIT_VERSION}-musl" ARCH="amd64" FILE="git-${GIT_VERSION}-musl-linux-amd64.tar" ./getlayer.sh
+          IMAGE="truemark/git:beta-${GIT_VERSION}-musl" ARCH="arm64" FILE="git-${GIT_VERSION}-musl-linux-arm64.tar" ./getlayer.sh
+      - name: Upload artifacts
+        uses: actions/upload-artifact@v3
+        if: ${{ env.TAG_EXISTS != 'true' }}
         with:
           name: files
           path: |
             *.tar.gz
+      - name: Upload binaries to release
+        uses: svenstaro/upload-release-action@v2
+        if: ${{ env.TAG_EXISTS != 'true' }}
+        with:
+          repo_token: ${{ secrets.GITHUB_TOKEN }}
+          file_glob: true
+          file: |
+            *.tar.gz
+          release_name: beta-${{env.GIT_VERSION}}
+          tag: beta-${{env.GIT_VERSION}}
+          overwrite: true
