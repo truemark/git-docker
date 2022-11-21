@@ -6,7 +6,7 @@
 
 set -euo pipefail
 
-export GIT_VERSION=$(curl -sSL https://api.github.com/repos/git/git/tags | jq -r "[.[].name | select(contains(\"-rc\") | not)] | .[0]")
+export GIT_VERSION=$(curl -sSL https://api.github.com/repos/git/git/tags | jq -r "[.[].name | select(contains(\"-rc\") | not)] | .[0] | sub(\"v\";\"\")")
 echo "Using git version ${GIT_VERSION}"
 
 docker buildx build \
@@ -18,8 +18,8 @@ docker buildx build \
   -t truemark/git:beta-${GIT_VERSION} \
   -t truemark/git:beta \
   .
-IMAGE="truemark/git:beta-${GIT_VERSION}" ARCH="amd64" FILE="git-${GIT_VERSION}-linux-amd64.tar" ./getlayer.sh
-IMAGE="truemark/git:beta-${GIT_VERSION}" ARCH="arm64" FILE="git-${GIT_VERSION}-linux-arm64.tar" ./getlayer.sh
+IMAGE="truemark/git:beta-${GIT_VERSION}" ARCH="amd64" FILE="git-linux-amd64.tar.gz" ./getlayer.sh
+IMAGE="truemark/git:beta-${GIT_VERSION}" ARCH="arm64" FILE="git-linux-arm64.tar.gz" ./getlayer.sh
 
 #docker buildx build \
 ##  --push \

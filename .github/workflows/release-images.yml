@@ -32,11 +32,12 @@ jobs:
         run: |
           export GIT_VERSION=$(curl -sSL https://api.github.com/repos/git/git/tags | jq -r "[.[].name | select(contains(\"-rc\") | not)] | .[0] | sub(\"v\";\"\")")
           echo "GIT_VERSION=${GIT_VERSION}" >> $GITHUB_ENV
-          echo "Version: ${GIT_CRYPT_VERSION}"
-          export TAG_EXISTS=$(curl -sSL https://api.github.com/repos/truemark/git-docker/tags | jq -r ".[].name == \"${GIT_CRYPT_VERSION}\"")
+          echo "Version: ${GIT_VERSION}"
+          export TAG_EXISTS=$(curl -sSL https://api.github.com/repos/truemark/git-docker/tags | jq -r ".[].name == \"${GIT_VERSION}\"")
           echo "TAG_EXISTS=${TAG_EXISTS}" >> $GITHUB_ENV
           echo "Exists: ${TAG_EXISTS}"
       - name: Build
+        if: ${{ env.TAG_EXISTS != 'true' }}
         run: |
           docker buildx build \
             --build-arg GIT_VERSION="${GIT_VERSION}" \
@@ -59,6 +60,7 @@ jobs:
           IMAGE="truemark/git:musl-${GIT_VERSION}" ARCH="amd64" FILE="git-musl-linux-amd64.tar.gz" ./getlayer.sh
           IMAGE="truemark/git:musl-${GIT_VERSION}" ARCH="arm64" FILE="git-musl-linux-arm64.tar.gz" ./getlayer.sh
       - uses: actions/upload-artifact@v3
+        if: ${{ env.TAG_EXISTS != 'true' }}
         with:
           name: files
           path: |
@@ -71,8 +73,8 @@ jobs:
           file_glob: true
           file: |
             *.tar.gz
-          release_name: ${{env.GIT_CRYPT_VERSION}}
-          tag: ${{env.GIT_CRYPT_VERSION}}
+          release_name: ${{env.GIT_VERSION}}
+          tag: ${{env.GIT_VERSION}}
           overwrite: true
       - name: Keepalive
         uses: gautamkrishnar/keepalive-workflow@v1

@@ -29,7 +29,7 @@ jobs:
         run: |
           export GIT_VERSION=$(curl -sSL https://api.github.com/repos/git/git/tags | jq -r "[.[].name | select(contains(\"-rc\") | not)] | .[0] | sub(\"v\";\"\")")
           echo "GIT_VERSION=${GIT_VERSION}" >> $GITHUB_ENV
-          echo "Version: ${GIT_CRYPT_VERSION}"
+          echo "Version: ${GIT_VERSION}"
       - name: Build
         run: |
           docker buildx build \
