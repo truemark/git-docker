@@ -58,4 +58,3 @@ jobs:
           name: files
           path: |
             *.tar.gz
-      - name: Upload binaries to release
