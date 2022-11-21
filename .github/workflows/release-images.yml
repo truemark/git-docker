@@ -38,7 +38,6 @@ jobs:
           echo "Exists: ${TAG_EXISTS}"
       - name: Build
         run: |
-          export GIT_VERSION=$(curl -sSL https://api.github.com/repos/git/git/tags | jq -r "[.[].name | select(contains(\"-rc\") | not)] | .[0] | sub(\"v\";\"\")")
           docker buildx build \
             --build-arg GIT_VERSION="${GIT_VERSION}" \
             --push \
@@ -47,8 +46,8 @@ jobs:
             -t truemark/git:${GIT_VERSION} \
             -t truemark/git:latest \
             .
-          IMAGE="truemark/git:${GIT_VERSION}" ARCH="amd64" FILE="git-${GIT_VERSION}-linux-amd64.tar" ./getlayer.sh
-          IMAGE="truemark/git:${GIT_VERSION}" ARCH="arm64" FILE="git-${GIT_VERSION}-linux-arm64.tar" ./getlayer.sh
+          IMAGE="truemark/git:${GIT_VERSION}" ARCH="amd64" FILE="git-linux-amd64.tar.gz" ./getlayer.sh
+          IMAGE="truemark/git:${GIT_VERSION}" ARCH="arm64" FILE="git-linux-arm64.tar.gz" ./getlayer.sh
           docker buildx build \
             --build-arg GIT_VERSION="${GIT_VERSION}" \
             --push \
@@ -57,8 +56,8 @@ jobs:
             -t truemark/git:musl-${GIT_VERSION} \
             -t truemark/git:musl \
             .
-          IMAGE="truemark/git:musl-${GIT_VERSION}" ARCH="amd64" FILE="git-musl-${GIT_VERSION}-linux-amd64.tar" ./getlayer.sh
-          IMAGE="truemark/git:musl-${GIT_VERSION}" ARCH="arm64" FILE="git-musl-${GIT_VERSION}-linux-arm64.tar" ./getlayer.sh
+          IMAGE="truemark/git:musl-${GIT_VERSION}" ARCH="amd64" FILE="git-musl-linux-amd64.tar.gz" ./getlayer.sh
+          IMAGE="truemark/git:musl-${GIT_VERSION}" ARCH="arm64" FILE="git-musl-linux-arm64.tar.gz" ./getlayer.sh
       - uses: actions/upload-artifact@v3
         with:
           name: files
