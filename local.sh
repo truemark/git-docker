@@ -22,7 +22,7 @@ IMAGE="truemark/git:beta-${GIT_VERSION}" ARCH="amd64" FILE="git-linux-amd64.tar.
 IMAGE="truemark/git:beta-${GIT_VERSION}" ARCH="arm64" FILE="git-linux-arm64.tar.gz" ./getlayer.sh
 
 #docker buildx build \
-##  --push \
+#  --push \
 #  --platform linux/arm64,linux/amd64 \
 #  --builder beta \
 #  --build-arg GIT_VERSION="${GIT_VERSION}" \

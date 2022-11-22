@@ -13,8 +13,9 @@ docker save -o image/image.tar ${IMAGE}
 
 # Save & Export
 cd image && tar -xf image.tar
-find . -name "layer.tar" -exec mv {} ../${FILE} \;
-gzip -f ../${FILE}
+find . -name "layer.tar" -exec mv {} ../layer.tar \;
+gzip ../layer.tar
+mv ../layer.tar.gz ../${FILE}
 
 # Cleanup
 docker image rm ${IMAGE}
