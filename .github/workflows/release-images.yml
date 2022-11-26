@@ -40,25 +40,104 @@ jobs:
         if: ${{ env.TAG_EXISTS != 'true' }}
         run: |
           docker buildx build \
-            --build-arg GIT_VERSION="${GIT_VERSION}" \
             --push \
             --platform linux/arm64,linux/amd64 \
+            --build-arg OS_VERSION="2" \
+            --build-arg GIT_VERSION="${GIT_VERSION}" \
             -f amazonlinux.Dockerfile \
-            -t truemark/git:${GIT_VERSION} \
-            -t truemark/git:latest \
+            -t truemark/git:${GIT_VERSION}-amazonlinux-2 \
+            -t truemark/git:amazonlinux-2 \
             .
-          IMAGE="truemark/git:${GIT_VERSION}" ARCH="amd64" FILE="git-linux-amd64.tar.gz" ./getlayer.sh
-          IMAGE="truemark/git:${GIT_VERSION}" ARCH="arm64" FILE="git-linux-arm64.tar.gz" ./getlayer.sh
+          IMAGE="truemark/git:${GIT_VERSION}-amazonlinux-2" ARCH="amd64" FILE="git-amazonlinux-2-amd64.tar.gz" ./getlayer.sh
+          IMAGE="truemark/git:${GIT_VERSION}-amazonlinux-2" ARCH="arm64" FILE="git-amazonlinux-2-arm64.tar.gz" ./getlayer.sh
           docker buildx build \
-            --build-arg GIT_VERSION="${GIT_VERSION}" \
             --push \
             --platform linux/arm64,linux/amd64 \
-            -f alpine.Dockerfile \
-            -t truemark/git:musl-${GIT_VERSION} \
-            -t truemark/git:musl \
+            --build-arg OS_VERSION="2022" \
+            --build-arg GIT_VERSION="${GIT_VERSION}" \
+            -f amazonlinux.Dockerfile \
+            -t truemark/git:${GIT_VERSION}-amazonlinux-2022 \
+            -t truemark/git:amazonlinux-2022 \
             .
-          IMAGE="truemark/git:musl-${GIT_VERSION}" ARCH="amd64" FILE="git-musl-linux-amd64.tar.gz" ./getlayer.sh
-          IMAGE="truemark/git:musl-${GIT_VERSION}" ARCH="arm64" FILE="git-musl-linux-arm64.tar.gz" ./getlayer.sh
+          IMAGE="truemark/git:${GIT_VERSION}-amazonlinux-2022" ARCH="amd64" FILE="git-amazonlinux-2022-amd64.tar.gz" ./getlayer.sh
+          IMAGE="truemark/git:${GIT_VERSION}-amazonlinux-2022" ARCH="arm64" FILE="git-amazonlinux-2022-arm64.tar.gz" ./getlayer.sh
+          docker buildx build \
+            --push \
+            --platform linux/arm64,linux/amd64 \
+            --build-arg OS_VERSION="focal" \
+            --build-arg GIT_VERSION="${GIT_VERSION}" \
+            -f ubuntu.Dockerfile \
+            -t truemark/git:${GIT_VERSION}-ubuntu-focal \
+            -t truemark/git:ubuntu-focal \
+            .
+          IMAGE="truemark/git:${GIT_VERSION}-ubuntu-focal" ARCH="amd64" FILE="git-ubuntu-focal-amd64.tar.gz" ./getlayer.sh
+          IMAGE="truemark/git:${GIT_VERSION}-ubuntu-focal" ARCH="arm64" FILE="git-ubuntu-focal-arm64.tar.gz" ./getlayer.sh
+          docker buildx build \
+            --push \
+            --platform linux/arm64,linux/amd64 \
+            --build-arg OS_VERSION="jammy" \
+            --build-arg GIT_VERSION="${GIT_VERSION}" \
+            -f ubuntu.Dockerfile \
+            -t truemark/git:${GIT_VERSION}-ubuntu-jammy \
+            -t truemark/git:ubuntu-jammy \
+            .
+          IMAGE="truemark/git:${GIT_VERSION}-ubuntu-jammy" ARCH="amd64" FILE="git-ubuntu-jammy-amd64.tar.gz" ./getlayer.sh
+          IMAGE="truemark/git:${GIT_VERSION}-ubuntu-jammy" ARCH="arm64" FILE="git-ubuntu-jammy-arm64.tar.gz" ./getlayer.sh
+          docker buildx build \
+            --push \
+            --platform linux/arm64,linux/amd64 \
+            --build-arg OS_VERSION="bookworm" \
+            --build-arg GIT_VERSION="${GIT_VERSION}" \
+            -f debian.Dockerfile \
+            -t truemark/git:${GIT_VERSION}-debian-bookworm \
+            -t truemark/git:debian-bookworm \
+            .
+          IMAGE="truemark/git:${GIT_VERSION}-debian-bookworm" ARCH="amd64" FILE="git-debian-bookworm-amd64.tar.gz" ./getlayer.sh
+          IMAGE="truemark/git:${GIT_VERSION}-debian-bookworm" ARCH="arm64" FILE="git-debian-bookworm-arm64.tar.gz" ./getlayer.sh
+          docker buildx build \
+            --push \
+            --platform linux/arm64,linux/amd64 \
+            --build-arg OS_VERSION="bullseye" \
+            --build-arg GIT_VERSION="${GIT_VERSION}" \
+            -f debian.Dockerfile \
+            -t truemark/git:${GIT_VERSION}-debian-bullseye \
+            -t truemark/git:debian-bullseye \
+            .
+          IMAGE="truemark/git:${GIT_VERSION}-debian-bullseye" ARCH="amd64" FILE="git-debian-bullseye-amd64.tar.gz" ./getlayer.sh
+          IMAGE="truemark/git:${GIT_VERSION}-debian-bullseye" ARCH="arm64" FILE="git-debian-bullseye-arm64.tar.gz" ./getlayer.sh
+          docker buildx build \
+            --push \
+            --platform linux/arm64,linux/amd64 \
+            --build-arg OS_VERSION="buster" \
+            --build-arg GIT_VERSION="${GIT_VERSION}" \
+            -f debian.Dockerfile \
+            -t truemark/git:${GIT_VERSION}-debian-buster \
+            -t truemark/git:debian-buster \
+            .
+          IMAGE="truemark/git:${GIT_VERSION}-debian-buster" ARCH="amd64" FILE="git-debian-buster-amd64.tar.gz" ./getlayer.sh
+          IMAGE="truemark/git:${GIT_VERSION}-debian-buster" ARCH="arm64" FILE="git-debian-buster-arm64.tar.gz" ./getlayer.sh
+          docker buildx build \
+            --push \
+            --platform linux/arm64,linux/amd64 \
+            --build-arg OS_VERSION="3.16" \
+            --build-arg GIT_VERSION="${GIT_VERSION}" \
+            -f alpine.Dockerfile \
+            -t truemark/git:${GIT_VERSION}-alpine-3.16 \
+            -t truemark/git:musl-alpine-3.16 \
+            .
+          IMAGE="truemark/git:${GIT_VERSION}-alpine-3.16" ARCH="amd64" FILE="git-alpine-3.16-amd64.tar.gz" ./getlayer.sh
+          IMAGE="truemark/git:${GIT_VERSION}-alpine-3.16" ARCH="arm64" FILE="git-alpine-3.16-arm64.tar.gz" ./getlayer.sh
+          docker buildx build \
+            --push \
+            --platform linux/arm64,linux/amd64 \
+            --build-arg OS_VERSION="3.17" \
+            --build-arg GIT_VERSION="${GIT_VERSION}" \
+            -f alpine.Dockerfile \
+            -t truemark/git:${GIT_VERSION}-alpine-3.17 \
+            -t truemark/git:musl-alpine-3.17 \
+            .
+          IMAGE="truemark/git:${GIT_VERSION}-alpine-3.17" ARCH="amd64" FILE="git-alpine-3.17-amd64.tar.gz" ./getlayer.sh
+          IMAGE="truemark/git:${GIT_VERSION}-alpine-3.17" ARCH="arm64" FILE="git-alpine-3.17-arm64.tar.gz" ./getlayer.sh
       - uses: actions/upload-artifact@v3
         if: ${{ env.TAG_EXISTS != 'true' }}
         with:

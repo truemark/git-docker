@@ -13,22 +13,11 @@ docker buildx build \
   --push \
   --platform linux/arm64,linux/amd64 \
   --builder beta \
+  --build-arg OS_VERSION="2" \
   --build-arg GIT_VERSION="${GIT_VERSION}" \
   -f amazonlinux.Dockerfile \
-  -t truemark/git:beta-${GIT_VERSION} \
-  -t truemark/git:beta \
+  -t truemark/git:beta-${GIT_VERSION}-amazonlinux-2 \
+  -t truemark/git:beta-amazonlinux-2 \
   .
-IMAGE="truemark/git:beta-${GIT_VERSION}" ARCH="amd64" FILE="git-linux-amd64.tar.gz" ./getlayer.sh
-IMAGE="truemark/git:beta-${GIT_VERSION}" ARCH="arm64" FILE="git-linux-arm64.tar.gz" ./getlayer.sh
-
-#docker buildx build \
-#  --push \
-#  --platform linux/arm64,linux/amd64 \
-#  --builder beta \
-#  --build-arg GIT_VERSION="${GIT_VERSION}" \
-#  -f alpine.Dockerfile \
-#  -t truemark/git:beta-musl-${GIT_VERSION} \
-#  -t truemark/git:beta-musl \
-#  .
-#IMAGE="truemark/git:beta-musl-${GIT_VERSION}" ARCH="amd64" FILE="git-musl-${GIT_VERSION}-linux-amd64.tar" ./getlayer.sh
-#IMAGE="truemark/git:beta-musl-${GIT_VERSION}" ARCH="arm64" FILE="git-musl-${GIT_VERSION}-linux-arm64.tar" ./getlayer.sh
+IMAGE="truemark/git:beta-${GIT_VERSION}" ARCH="amd64" FILE="git-amazonlinux-2-amd64.tar.gz" ./getlayer.sh
+IMAGE="truemark/git:beta-${GIT_VERSION}" ARCH="arm64" FILE="git-amazonlinux-2-arm64.tar.gz" ./getlayer.sh

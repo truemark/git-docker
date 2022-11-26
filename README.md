@@ -1,43 +1,77 @@
 # Git Docker
 
-This project produces git binaries and docker images using sources located at
-https://github.com/git/git with the following goals:
-
- * Provide an easy way to get the latest version of git
- * Provide both glibc and musl linked versions of git
- * Provide amd64 and arm64 versions of git for Linux
+This project produces a set of single layer docker images for amd64 and arm64
+containing the latest version of git for a number of Linux distributions.
 
 ## How do I get the latest version of git into my docker image?
 
-For glibc based distributions, add the following to your Dockerfile
+
+For Amazon versions
+
 ```dockerfile
-COPY --from=truemark/git:latest /usr/local/ /usr/local/
+COPY --from=truemark/git:amazonlinux-2022 /usr/local/ /usr/local/
 ```
 
-For musl based distributions, like Alpine Linux, add the following to your Dockerfile
 ```dockerfile
-COPY --from=truemark/git:latest-musl /usr/local/ /usr/local/
+COPY --from=truemark/git:amazonlinux-2 /usr/local/ /usr/local/
+```
+
+For Alpine versions
+
+```dockerfile
+COPY --from=truemark/git:alpine-3.17 /usr/local/ /usr/local/
+```
+
+```dockerfile
+COPY --from=truemark/git:alpine-3.16 /usr/local/ /usr/local/
+```
+
+For Ubuntu versions
+
+```dockerfile
+COPY --from=truemark/git:ubuntu-jammy /usr/local/ /usr/local/
+```
+
+```dockerfile
+COPY --from=truemark/git:ubuntu-focal /usr/local/ /usr/local/
+```
+
+For Debian versions
+
+```dockerfile
+COPY --from=truemark/git:debian-bookworm /usr/local/ /usr/local/
+```
+
+```dockerfile
+COPY --from=truemark/git:debian-bullseye /usr/local/ /usr/local/
+```
+
+```dockerfile
+COPY --from=truemark/git:debian-buster /usr/local/ /usr/local/
 ```
 
 ## What dependencies are required for git to work?
 
-The following dependencies are needed in Ubuntu and Debian for git.
+You need to have libcurl installed for Ubuntu and Debian systems
+
+For Ubuntu & Debian
 ```bash
-apt-get -qq update && apt-get -qq install --no-install-recommends libcurl4 libexpat1 ca-certificates openssh-client
+apt-get -qq install --no-install-recommends libcurl4
 ```
 
-The following dependencies are needed in Alpine Linux for git to work
-```bash
-apk add libintl libcurl openssh-client
-```
-
-The following dependencies are needed in Amazon Linux for git to work
+Additionally, if you want to use git with SSH, you need to have an SSH client installed
 
 ```bash
-yum -q -y install ssh-clients
+yum -y install ssh-clients
 ```
 
-If you do not need to work with git repositories over ssh, you can leave off the ssh dependencies.
+```bash
+apk add --no-cache openssh-client
+```
+
+```bash
+apt-get -qq install --no-install-recommends openssh-client
+```
 
 ## Maintainers
 
