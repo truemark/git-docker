@@ -116,7 +116,7 @@ jobs:
             --build-arg GIT_VERSION="${GIT_VERSION}" \
             -f alpine.Dockerfile \
             -t truemark/git:beta-${GIT_VERSION}-alpine-3.16 \
-            -t truemark/git:beta-musl-alpine-3.16 \
+            -t truemark/git:beta-alpine-3.16 \
             .
           IMAGE="truemark/git:beta-${GIT_VERSION}-alpine-3.16" ARCH="amd64" FILE="git-alpine-3.16-amd64.tar.gz" ./getlayer.sh
           IMAGE="truemark/git:beta-${GIT_VERSION}-alpine-3.16" ARCH="arm64" FILE="git-alpine-3.16-arm64.tar.gz" ./getlayer.sh
@@ -127,7 +127,7 @@ jobs:
             --build-arg GIT_VERSION="${GIT_VERSION}" \
             -f alpine.Dockerfile \
             -t truemark/git:beta-${GIT_VERSION}-alpine-3.17 \
-            -t truemark/git:beta-musl-alpine-3.17 \
+            -t truemark/git:beta-alpine-3.17 \
             .
           IMAGE="truemark/git:beta-${GIT_VERSION}-alpine-3.17" ARCH="amd64" FILE="git-alpine-3.17-amd64.tar.gz" ./getlayer.sh
           IMAGE="truemark/git:beta-${GIT_VERSION}-alpine-3.17" ARCH="arm64" FILE="git-alpine-3.17-arm64.tar.gz" ./getlayer.sh
