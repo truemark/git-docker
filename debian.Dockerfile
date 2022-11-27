@@ -11,7 +11,7 @@ RUN rm -rf /usr/local/* && cd /git && \
 
 FROM debian:$OS_VERSION as test
 COPY --from=build /usr/local/ /usr/local/
-RUN apt-get -qq update && apt-get install -qq libcurl4
+RUN apt-get -qq update && apt-get install -qq libcurl4 libexpat1
 COPY test.sh /test.sh
 RUN /test.sh
 

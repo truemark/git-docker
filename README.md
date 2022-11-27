@@ -52,11 +52,11 @@ COPY --from=truemark/git:debian-buster /usr/local/ /usr/local/
 
 ## What dependencies are required for git to work?
 
-You need to have libcurl installed for Ubuntu and Debian systems
+You need to have libcurl and libexpat1 installed for Ubuntu and Debian systems
 
 For Ubuntu & Debian
 ```bash
-apt-get -qq install --no-install-recommends libcurl4
+apt-get -qq install --no-install-recommends libcurl4 libexpat1
 ```
 
 Additionally, if you want to use git with SSH, you need to have an SSH client installed
