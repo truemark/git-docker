@@ -9,15 +9,12 @@ set -euo pipefail
 export GIT_VERSION=$(curl -sSL https://api.github.com/repos/git/git/tags | jq -r "[.[].name | select(contains(\"-rc\") | not)] | .[0] | sub(\"v\";\"\")")
 echo "Using git version ${GIT_VERSION}"
 
-docker buildx build \
-  --push \
-  --platform linux/arm64,linux/amd64 \
-  --builder beta \
-  --build-arg OS_VERSION="2" \
-  --build-arg GIT_VERSION="${GIT_VERSION}" \
-  -f amazonlinux.Dockerfile \
-  -t truemark/git:beta-${GIT_VERSION}-amazonlinux-2 \
-  -t truemark/git:beta-amazonlinux-2 \
-  .
-IMAGE="truemark/git:beta-${GIT_VERSION}" ARCH="amd64" FILE="git-amazonlinux-2-amd64.tar.gz" ./getlayer.sh
-IMAGE="truemark/git:beta-${GIT_VERSION}" ARCH="arm64" FILE="git-amazonlinux-2-arm64.tar.gz" ./getlayer.sh
+docker build -t moo --build-arg GIT_VERSION=$GIT_VERSION --build-arg OS_VERSION=3.16 -f alpine.Dockerfile .
+docker build -t moo --build-arg GIT_VERSION=$GIT_VERSION --build-arg OS_VERSION=3.17 -f alpine.Dockerfile .
+docker build -t moo --build-arg GIT_VERSION=$GIT_VERSION --build-arg OS_VERSION=2 -f amazonlinux.Dockerfile .
+docker build -t moo --build-arg GIT_VERSION=$GIT_VERSION --build-arg OS_VERSION=2022 -f amazonlinux.Dockerfile .
+docker build -t moo --build-arg GIT_VERSION=$GIT_VERSION --build-arg OS_VERSION=focal -f ubuntu.Dockerfile .
+docker build -t moo --build-arg GIT_VERSION=$GIT_VERSION --build-arg OS_VERSION=jammy -f ubuntu.Dockerfile .
+docker build -t moo --build-arg GIT_VERSION=$GIT_VERSION --build-arg OS_VERSION=buster -f debian.Dockerfile .
+docker build -t moo --build-arg GIT_VERSION=$GIT_VERSION --build-arg OS_VERSION=bullseye -f debian.Dockerfile .
+docker build -t moo --build-arg GIT_VERSION=$GIT_VERSION --build-arg OS_VERSION=bookworm -f debian.Dockerfile .
