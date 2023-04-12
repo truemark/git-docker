@@ -11,6 +11,10 @@ of dependencies including systemd which bloats docker images that use it.
 For Amazon versions
 
 ```dockerfile
+COPY --from=truemark/git:amazonlinux-2023 /usr/local/ /usr/local/
+```
+
+```dockerfile
 COPY --from=truemark/git:amazonlinux-2022 /usr/local/ /usr/local/
 ```
 
