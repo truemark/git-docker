@@ -6,357 +6,164 @@ on:
     branches:
       - develop
 
+permissions:
+  id-token: write
+  contents: write
+
 jobs:
-  build-amazonlinux-2022:
+  build:
     runs-on: ubuntu-latest
     steps:
       - name: Checkout
         uses: actions/checkout@v3
-      - name: Login to Docker Hub
-        uses: docker/login-action@v2
-        with:
-          username: ${{ secrets.DOCKER_HUB_USERNAME }}
-          password: ${{ secrets.DOCKER_HUB_ACCESS_TOKEN }}
-      - name: Set up QEMU
-        uses: docker/setup-qemu-action@v2
-        with:
-          platforms: all
-      - name: Set up Docker Buildx
-        id: buildx
-        uses: docker/setup-buildx-action@v2
       - name: Get Version
         id: version
         run: |
           export GIT_VERSION=$(curl -sSL https://api.github.com/repos/git/git/tags | jq -r "[.[].name | select(contains(\"-rc\") | not)] | .[0] | sub(\"v\";\"\")")
           echo "GIT_VERSION=${GIT_VERSION}" >> $GITHUB_ENV
           echo "Version: ${GIT_VERSION}"
-      - name: Build
+      - name: Login to Docker Hub
+        uses: docker/login-action@v2
+        with:
+          username: ${{ secrets.DOCKER_HUB_USERNAME }}
+          password: ${{ secrets.DOCKER_HUB_ACCESS_TOKEN }}
+      - name: Configure AWS Credentials
+        uses: aws-actions/configure-aws-credentials@v2
+        with:
+          role-to-assume: "${{ secrets.AWS_ASSUME_ROLE }}"
+          aws-region: "us-east-1"
+      - name: Login to ECR
+        id: ecr-login
+        uses: aws-actions/amazon-ecr-login@v1
+        with:
+          registry-type: public
+      - name: Setup Buildx Remote Docker
+        id: buildx
+        uses: truemark/aws-buildx-remote-docker-instance-action@v2
+        with:
+          security-group-id: "${{ vars.SECURITY_GROUP_ID }}"
+          subnet-id: "${{ vars.SUBNET_ID }}"
+          instance-profile: "${{ vars.INSTANCE_PROFILE }}"
+          region: "us-east-2"
+      - name: Build amazonlinux-2023
+        run: |
+          docker buildx build \
+            --push \
+            --platform linux/arm64,linux/amd64 \
+            --build-arg OS_VERSION="2023" \
+            --build-arg GIT_VERSION="${{ env.GIT_VERSION }}" \
+            -f amazonlinux.Dockerfile \
+            -t truemark/git:beta-${{ env.GIT_VERSION }}-amazonlinux-2023 \
+            -t truemark/git:beta-amazonlinux-2023 \
+            .
+      - name: Build amazonlinux-2022
         run: |
           docker buildx build \
             --push \
             --platform linux/arm64,linux/amd64 \
             --build-arg OS_VERSION="2022" \
-            --build-arg GIT_VERSION="${GIT_VERSION}" \
+            --build-arg GIT_VERSION="${{ env.GIT_VERSION }}" \
             -f amazonlinux.Dockerfile \
-            -t truemark/git:beta-${GIT_VERSION}-amazonlinux-2022 \
+            -t truemark/git:beta-${{ env.GIT_VERSION }}-amazonlinux-2022 \
             -t truemark/git:beta-amazonlinux-2022 \
             .
-  build-amazonlinux-2:
-    runs-on: ubuntu-latest
-    steps:
-      - name: Checkout
-        uses: actions/checkout@v3
-      - name: Login to Docker Hub
-        uses: docker/login-action@v2
-        with:
-          username: ${{ secrets.DOCKER_HUB_USERNAME }}
-          password: ${{ secrets.DOCKER_HUB_ACCESS_TOKEN }}
-      - name: Set up QEMU
-        uses: docker/setup-qemu-action@v2
-        with:
-          platforms: all
-      - name: Set up Docker Buildx
-        id: buildx
-        uses: docker/setup-buildx-action@v2
-      - name: Get Version
-        id: version
-        run: |
-          export GIT_VERSION=$(curl -sSL https://api.github.com/repos/git/git/tags | jq -r "[.[].name | select(contains(\"-rc\") | not)] | .[0] | sub(\"v\";\"\")")
-          echo "GIT_VERSION=${GIT_VERSION}" >> $GITHUB_ENV
-          echo "Version: ${GIT_VERSION}"
-      - name: Build
+      - name: Build amazonlinux-2
         run: |
           docker buildx build \
             --push \
             --platform linux/arm64,linux/amd64 \
             --build-arg OS_VERSION="2" \
-            --build-arg GIT_VERSION="${GIT_VERSION}" \
+            --build-arg GIT_VERSION="${{ env.GIT_VERSION }}" \
             -f amazonlinux.Dockerfile \
-            -t truemark/git:beta-${GIT_VERSION}-amazonlinux-2 \
+            -t truemark/git:beta-${{ env.GIT_VERSION }}-amazonlinux-2 \
             -t truemark/git:beta-amazonlinux-2 \
             .
-  build-ubuntu-jammy:
-    runs-on: ubuntu-latest
-    steps:
-      - name: Checkout
-        uses: actions/checkout@v3
-      - name: Login to Docker Hub
-        uses: docker/login-action@v2
-        with:
-          username: ${{ secrets.DOCKER_HUB_USERNAME }}
-          password: ${{ secrets.DOCKER_HUB_ACCESS_TOKEN }}
-      - name: Set up QEMU
-        uses: docker/setup-qemu-action@v2
-        with:
-          platforms: all
-      - name: Set up Docker Buildx
-        id: buildx
-        uses: docker/setup-buildx-action@v2
-      - name: Get Version
-        id: version
-        run: |
-          export GIT_VERSION=$(curl -sSL https://api.github.com/repos/git/git/tags | jq -r "[.[].name | select(contains(\"-rc\") | not)] | .[0] | sub(\"v\";\"\")")
-          echo "GIT_VERSION=${GIT_VERSION}" >> $GITHUB_ENV
-          echo "Version: ${GIT_VERSION}"
-      - name: Build
+      - name: Build ubuntu-jammy
         run: |
           docker buildx build \
             --push \
             --platform linux/arm64,linux/amd64 \
             --build-arg OS_VERSION="jammy" \
-            --build-arg GIT_VERSION="${GIT_VERSION}" \
+            --build-arg GIT_VERSION="${{ env.GIT_VERSION }}" \
             -f ubuntu.Dockerfile \
-            -t truemark/git:beta-${GIT_VERSION}-ubuntu-jammy \
+            -t truemark/git:beta-${{ env.GIT_VERSION }}-ubuntu-jammy \
             -t truemark/git:beta-ubuntu-jammy \
             .
-  build-ubuntu-focal:
-    runs-on: ubuntu-latest
-    steps:
-      - name: Checkout
-        uses: actions/checkout@v3
-      - name: Login to Docker Hub
-        uses: docker/login-action@v2
-        with:
-          username: ${{ secrets.DOCKER_HUB_USERNAME }}
-          password: ${{ secrets.DOCKER_HUB_ACCESS_TOKEN }}
-      - name: Set up QEMU
-        uses: docker/setup-qemu-action@v2
-        with:
-          platforms: all
-      - name: Set up Docker Buildx
-        id: buildx
-        uses: docker/setup-buildx-action@v2
-      - name: Get Version
-        id: version
-        run: |
-          export GIT_VERSION=$(curl -sSL https://api.github.com/repos/git/git/tags | jq -r "[.[].name | select(contains(\"-rc\") | not)] | .[0] | sub(\"v\";\"\")")
-          echo "GIT_VERSION=${GIT_VERSION}" >> $GITHUB_ENV
-          echo "Version: ${GIT_VERSION}"
-      - name: Build
+      - name: Build ubuntu-focal
         run: |
           docker buildx build \
             --push \
             --platform linux/arm64,linux/amd64 \
             --build-arg OS_VERSION="focal" \
-            --build-arg GIT_VERSION="${GIT_VERSION}" \
+            --build-arg GIT_VERSION="${{ env.GIT_VERSION }}" \
             -f ubuntu.Dockerfile \
-            -t truemark/git:beta-${GIT_VERSION}-ubuntu-focal \
+            -t truemark/git:beta-${{ env.GIT_VERSION }}-ubuntu-focal \
             -t truemark/git:beta-ubuntu-focal \
             .
-  build-debian-bookworm:
-    runs-on: ubuntu-latest
-    steps:
-      - name: Checkout
-        uses: actions/checkout@v3
-      - name: Login to Docker Hub
-        uses: docker/login-action@v2
-        with:
-          username: ${{ secrets.DOCKER_HUB_USERNAME }}
-          password: ${{ secrets.DOCKER_HUB_ACCESS_TOKEN }}
-      - name: Set up QEMU
-        uses: docker/setup-qemu-action@v2
-        with:
-          platforms: all
-      - name: Set up Docker Buildx
-        id: buildx
-        uses: docker/setup-buildx-action@v2
-      - name: Get Version
-        id: version
-        run: |
-          export GIT_VERSION=$(curl -sSL https://api.github.com/repos/git/git/tags | jq -r "[.[].name | select(contains(\"-rc\") | not)] | .[0] | sub(\"v\";\"\")")
-          echo "GIT_VERSION=${GIT_VERSION}" >> $GITHUB_ENV
-          echo "Version: ${GIT_VERSION}"
-      - name: Build
+      - name: Build debian-bookworm
         run: |
           docker buildx build \
             --push \
             --platform linux/arm64,linux/amd64 \
             --build-arg OS_VERSION="bookworm" \
-            --build-arg GIT_VERSION="${GIT_VERSION}" \
+            --build-arg GIT_VERSION="${{ env.GIT_VERSION }}" \
             -f debian.Dockerfile \
-            -t truemark/git:beta-${GIT_VERSION}-debian-bookworm \
+            -t truemark/git:beta-${{ env.GIT_VERSION }}-debian-bookworm \
             -t truemark/git:beta-debian-bookworm \
             .
-  build-debian-bullseye:
-    runs-on: ubuntu-latest
-    steps:
-      - name: Checkout
-        uses: actions/checkout@v3
-      - name: Login to Docker Hub
-        uses: docker/login-action@v2
-        with:
-          username: ${{ secrets.DOCKER_HUB_USERNAME }}
-          password: ${{ secrets.DOCKER_HUB_ACCESS_TOKEN }}
-      - name: Set up QEMU
-        uses: docker/setup-qemu-action@v2
-        with:
-          platforms: all
-      - name: Set up Docker Buildx
-        id: buildx
-        uses: docker/setup-buildx-action@v2
-      - name: Get Version
-        id: version
-        run: |
-          export GIT_VERSION=$(curl -sSL https://api.github.com/repos/git/git/tags | jq -r "[.[].name | select(contains(\"-rc\") | not)] | .[0] | sub(\"v\";\"\")")
-          echo "GIT_VERSION=${GIT_VERSION}" >> $GITHUB_ENV
-          echo "Version: ${GIT_VERSION}"
-      - name: Build
+      - name: Build debian-bullseye
         run: |
           docker buildx build \
             --push \
             --platform linux/arm64,linux/amd64 \
             --build-arg OS_VERSION="bullseye" \
-            --build-arg GIT_VERSION="${GIT_VERSION}" \
+            --build-arg GIT_VERSION="${{ env.GIT_VERSION }}" \
             -f debian.Dockerfile \
-            -t truemark/git:beta-${GIT_VERSION}-debian-bullseye \
+            -t truemark/git:beta-${{ env.GIT_VERSION }}-debian-bullseye \
             -t truemark/git:beta-debian-bullseye \
             .
-  build-debian-buster:
-    runs-on: ubuntu-latest
-    steps:
-      - name: Checkout
-        uses: actions/checkout@v3
-      - name: Login to Docker Hub
-        uses: docker/login-action@v2
-        with:
-          username: ${{ secrets.DOCKER_HUB_USERNAME }}
-          password: ${{ secrets.DOCKER_HUB_ACCESS_TOKEN }}
-      - name: Set up QEMU
-        uses: docker/setup-qemu-action@v2
-        with:
-          platforms: all
-      - name: Set up Docker Buildx
-        id: buildx
-        uses: docker/setup-buildx-action@v2
-      - name: Get Version
-        id: version
-        run: |
-          export GIT_VERSION=$(curl -sSL https://api.github.com/repos/git/git/tags | jq -r "[.[].name | select(contains(\"-rc\") | not)] | .[0] | sub(\"v\";\"\")")
-          echo "GIT_VERSION=${GIT_VERSION}" >> $GITHUB_ENV
-          echo "Version: ${GIT_VERSION}"
-      - name: Build
-        run: |
-          docker buildx build \
-            --push \
-            --platform linux/arm64,linux/amd64 \
-            --build-arg OS_VERSION="buster" \
-            --build-arg GIT_VERSION="${GIT_VERSION}" \
-            -f debian.Dockerfile \
-            -t truemark/git:beta-${GIT_VERSION}-debian-buster \
-            -t truemark/git:beta-debian-buster \
-            .
-  build-alpine-317:
-    runs-on: ubuntu-latest
-    steps:
-      - name: Checkout
-        uses: actions/checkout@v3
-      - name: Login to Docker Hub
-        uses: docker/login-action@v2
-        with:
-          username: ${{ secrets.DOCKER_HUB_USERNAME }}
-          password: ${{ secrets.DOCKER_HUB_ACCESS_TOKEN }}
-      - name: Set up QEMU
-        uses: docker/setup-qemu-action@v2
-        with:
-          platforms: all
-      - name: Set up Docker Buildx
-        id: buildx
-        uses: docker/setup-buildx-action@v2
-      - name: Get Version
-        id: version
-        run: |
-          export GIT_VERSION=$(curl -sSL https://api.github.com/repos/git/git/tags | jq -r "[.[].name | select(contains(\"-rc\") | not)] | .[0] | sub(\"v\";\"\")")
-          echo "GIT_VERSION=${GIT_VERSION}" >> $GITHUB_ENV
-          echo "Version: ${GIT_VERSION}"
-      - name: Build
+      - name: Build alpine-3.17
         run: |
           docker buildx build \
             --push \
             --platform linux/arm64,linux/amd64 \
             --build-arg OS_VERSION="3.17" \
-            --build-arg GIT_VERSION="${GIT_VERSION}" \
+            --build-arg GIT_VERSION="${{ env.GIT_VERSION }}" \
             -f alpine.Dockerfile \
-            -t truemark/git:beta-${GIT_VERSION}-alpine-3.17 \
+            -t truemark/git:beta-${{ env.GIT_VERSION }}-alpine-3.17 \
             -t truemark/git:beta-alpine-3.17 \
             .
-  build-alpine-316:
-    runs-on: ubuntu-latest
-    steps:
-      - name: Checkout
-        uses: actions/checkout@v3
-      - name: Login to Docker Hub
-        uses: docker/login-action@v2
-        with:
-          username: ${{ secrets.DOCKER_HUB_USERNAME }}
-          password: ${{ secrets.DOCKER_HUB_ACCESS_TOKEN }}
-      - name: Set up QEMU
-        uses: docker/setup-qemu-action@v2
-        with:
-          platforms: all
-      - name: Set up Docker Buildx
-        id: buildx
-        uses: docker/setup-buildx-action@v2
-      - name: Get Version
-        id: version
-        run: |
-          export GIT_VERSION=$(curl -sSL https://api.github.com/repos/git/git/tags | jq -r "[.[].name | select(contains(\"-rc\") | not)] | .[0] | sub(\"v\";\"\")")
-          echo "GIT_VERSION=${GIT_VERSION}" >> $GITHUB_ENV
-          echo "Version: ${GIT_VERSION}"
-      - name: Build
+      - name: Build alpine-3.16
         run: |
           docker buildx build \
             --push \
             --platform linux/arm64,linux/amd64 \
             --build-arg OS_VERSION="3.16" \
-            --build-arg GIT_VERSION="${GIT_VERSION}" \
+            --build-arg GIT_VERSION="${{ env.GIT_VERSION }}" \
             -f alpine.Dockerfile \
-            -t truemark/git:beta-${GIT_VERSION}-alpine-3.16 \
+            -t truemark/git:beta-${{ env.GIT_VERSION }}-alpine-3.16 \
             -t truemark/git:beta-alpine-3.16 \
             .
-  images:
-    needs: [ build-amazonlinux-2022, build-amazonlinux-2, build-ubuntu-jammy, build-ubuntu-focal, build-debian-bookworm, build-debian-bullseye, build-debian-buster, build-alpine-317, build-alpine-316 ]
-    runs-on: ubuntu-latest
-    steps:
-      - name: Checkout
-        uses: actions/checkout@v3
-      - name: Login to Docker Hub
-        uses: docker/login-action@v2
-        with:
-          username: ${{ secrets.DOCKER_HUB_USERNAME }}
-          password: ${{ secrets.DOCKER_HUB_ACCESS_TOKEN }}
-      - name: Set up QEMU
-        uses: docker/setup-qemu-action@v2
-        with:
-          platforms: all
-      - name: Set up Docker Buildx
-        id: buildx
-        uses: docker/setup-buildx-action@v2
-      - name: Get Version
-        id: version
+      - name: Package
         run: |
-          export GIT_VERSION=$(curl -sSL https://api.github.com/repos/git/git/tags | jq -r "[.[].name | select(contains(\"-rc\") | not)] | .[0] | sub(\"v\";\"\")")
-          echo "GIT_VERSION=${GIT_VERSION}" >> $GITHUB_ENV
-          echo "Version: ${GIT_VERSION}"
-      - name: Build
-        run: |
-          IMAGE="truemark/git:beta-${GIT_VERSION}-amazonlinux-2" ARCH="amd64" FILE="git-amazonlinux-2-amd64.tar.gz" ./getlayer.sh
-          IMAGE="truemark/git:beta-${GIT_VERSION}-amazonlinux-2" ARCH="arm64" FILE="git-amazonlinux-2-arm64.tar.gz" ./getlayer.sh
-          IMAGE="truemark/git:beta-${GIT_VERSION}-amazonlinux-2022" ARCH="amd64" FILE="git-amazonlinux-2022-amd64.tar.gz" ./getlayer.sh
-          IMAGE="truemark/git:beta-${GIT_VERSION}-amazonlinux-2022" ARCH="arm64" FILE="git-amazonlinux-2022-arm64.tar.gz" ./getlayer.sh
-          IMAGE="truemark/git:beta-${GIT_VERSION}-ubuntu-focal" ARCH="amd64" FILE="git-ubuntu-focal-amd64.tar.gz" ./getlayer.sh
-          IMAGE="truemark/git:beta-${GIT_VERSION}-ubuntu-focal" ARCH="arm64" FILE="git-ubuntu-focal-arm64.tar.gz" ./getlayer.sh
-          IMAGE="truemark/git:beta-${GIT_VERSION}-ubuntu-jammy" ARCH="amd64" FILE="git-ubuntu-jammy-amd64.tar.gz" ./getlayer.sh
-          IMAGE="truemark/git:beta-${GIT_VERSION}-ubuntu-jammy" ARCH="arm64" FILE="git-ubuntu-jammy-arm64.tar.gz" ./getlayer.sh
-          IMAGE="truemark/git:beta-${GIT_VERSION}-debian-bookworm" ARCH="amd64" FILE="git-debian-bookworm-amd64.tar.gz" ./getlayer.sh
-          IMAGE="truemark/git:beta-${GIT_VERSION}-debian-bookworm" ARCH="arm64" FILE="git-debian-bookworm-arm64.tar.gz" ./getlayer.sh    
-          IMAGE="truemark/git:beta-${GIT_VERSION}-debian-bullseye" ARCH="amd64" FILE="git-debian-bullseye-amd64.tar.gz" ./getlayer.sh
-          IMAGE="truemark/git:beta-${GIT_VERSION}-debian-bullseye" ARCH="arm64" FILE="git-debian-bullseye-arm64.tar.gz" ./getlayer.sh
-          IMAGE="truemark/git:beta-${GIT_VERSION}-debian-buster" ARCH="amd64" FILE="git-debian-buster-amd64.tar.gz" ./getlayer.sh
-          IMAGE="truemark/git:beta-${GIT_VERSION}-debian-buster" ARCH="arm64" FILE="git-debian-buster-arm64.tar.gz" ./getlayer.sh
-          IMAGE="truemark/git:beta-${GIT_VERSION}-alpine-3.16" ARCH="amd64" FILE="git-alpine-3.16-amd64.tar.gz" ./getlayer.sh
-          IMAGE="truemark/git:beta-${GIT_VERSION}-alpine-3.16" ARCH="arm64" FILE="git-alpine-3.16-arm64.tar.gz" ./getlayer.sh
-          IMAGE="truemark/git:beta-${GIT_VERSION}-alpine-3.17" ARCH="amd64" FILE="git-alpine-3.17-amd64.tar.gz" ./getlayer.sh
-          IMAGE="truemark/git:beta-${GIT_VERSION}-alpine-3.17" ARCH="arm64" FILE="git-alpine-3.17-arm64.tar.gz" ./getlayer.sh
+          IMAGE="truemark/git:beta-${{ env.GIT_VERSION }}-amazonlinux-2" ARCH="amd64" FILE="git-amazonlinux-2-amd64.tar.gz" ./getlayer.sh
+          IMAGE="truemark/git:beta-${{ env.GIT_VERSION }}-amazonlinux-2" ARCH="arm64" FILE="git-amazonlinux-2-arm64.tar.gz" ./getlayer.sh
+          IMAGE="truemark/git:beta-${{ env.GIT_VERSION }}-amazonlinux-2022" ARCH="amd64" FILE="git-amazonlinux-2022-amd64.tar.gz" ./getlayer.sh
+          IMAGE="truemark/git:beta-${{ env.GIT_VERSION }}-amazonlinux-2022" ARCH="arm64" FILE="git-amazonlinux-2022-arm64.tar.gz" ./getlayer.sh
+          IMAGE="truemark/git:beta-${{ env.GIT_VERSION }}-amazonlinux-2023" ARCH="amd64" FILE="git-amazonlinux-2023-amd64.tar.gz" ./getlayer.sh
+          IMAGE="truemark/git:beta-${{ env.GIT_VERSION }}-amazonlinux-2023" ARCH="arm64" FILE="git-amazonlinux-2023-arm64.tar.gz" ./getlayer.sh
+          IMAGE="truemark/git:beta-${{ env.GIT_VERSION }}-ubuntu-focal" ARCH="amd64" FILE="git-ubuntu-focal-amd64.tar.gz" ./getlayer.sh
+          IMAGE="truemark/git:beta-${{ env.GIT_VERSION }}-ubuntu-focal" ARCH="arm64" FILE="git-ubuntu-focal-arm64.tar.gz" ./getlayer.sh
+          IMAGE="truemark/git:beta-${{ env.GIT_VERSION }}-ubuntu-jammy" ARCH="amd64" FILE="git-ubuntu-jammy-amd64.tar.gz" ./getlayer.sh
+          IMAGE="truemark/git:beta-${{ env.GIT_VERSION }}-ubuntu-jammy" ARCH="arm64" FILE="git-ubuntu-jammy-arm64.tar.gz" ./getlayer.sh
+          IMAGE="truemark/git:beta-${{ env.GIT_VERSION }}-debian-bookworm" ARCH="amd64" FILE="git-debian-bookworm-amd64.tar.gz" ./getlayer.sh
+          IMAGE="truemark/git:beta-${{ env.GIT_VERSION }}-debian-bookworm" ARCH="arm64" FILE="git-debian-bookworm-arm64.tar.gz" ./getlayer.sh    
+          IMAGE="truemark/git:beta-${{ env.GIT_VERSION }}-debian-bullseye" ARCH="amd64" FILE="git-debian-bullseye-amd64.tar.gz" ./getlayer.sh
+          IMAGE="truemark/git:beta-${{ env.GIT_VERSION }}-debian-bullseye" ARCH="arm64" FILE="git-debian-bullseye-arm64.tar.gz" ./getlayer.sh
+          IMAGE="truemark/git:beta-${{ env.GIT_VERSION }}-alpine-3.16" ARCH="amd64" FILE="git-alpine-3.16-amd64.tar.gz" ./getlayer.sh
+          IMAGE="truemark/git:beta-${{ env.GIT_VERSION }}-alpine-3.16" ARCH="arm64" FILE="git-alpine-3.16-arm64.tar.gz" ./getlayer.sh
+          IMAGE="truemark/git:beta-${{ env.GIT_VERSION }}-alpine-3.17" ARCH="amd64" FILE="git-alpine-3.17-amd64.tar.gz" ./getlayer.sh
+          IMAGE="truemark/git:beta-${{ env.GIT_VERSION }}-alpine-3.17" ARCH="arm64" FILE="git-alpine-3.17-arm64.tar.gz" ./getlayer.sh
       - uses: actions/upload-artifact@v3
         with:
           name: files
