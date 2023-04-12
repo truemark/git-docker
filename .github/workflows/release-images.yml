@@ -57,11 +57,11 @@ jobs:
           docker buildx build \
             --push \
             --platform linux/arm64,linux/amd64 \
-            --build-arg OS_VERSION="2022" \
+            --build-arg OS_VERSION="2023" \
             --build-arg GIT_VERSION="${{ env.GIT_VERSION }}" \
             -f amazonlinux.Dockerfile \
-            -t truemark/git:${{ env.GIT_VERSION }}-amazonlinux-2022 \
-            -t truemark/git:amazonlinux-2022 \
+            -t truemark/git:${{ env.GIT_VERSION }}-amazonlinux-2023 \
+            -t truemark/git:amazonlinux-2023 \
             .
       - name: Copy ${{ env.GIT_VERSION }}-amazonlinux-2023 to ECR
         uses: truemark/skopeo-copy-action@v1
