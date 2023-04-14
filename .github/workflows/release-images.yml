@@ -64,6 +64,7 @@ jobs:
             -t truemark/git:amazonlinux-2023 \
             .
       - name: Copy ${{ env.GIT_VERSION }}-amazonlinux-2023 to ECR
+        if: ${{ env.TAG_EXISTS != 'true' }}
         uses: truemark/skopeo-copy-action@v1
         with:
           src-image: "docker://truemark/git:${{ env.GIT_VERSION }}-amazonlinux-2023"
@@ -74,6 +75,7 @@ jobs:
           dest-password: "${{ steps.ecr-login.outputs.docker_password_public_ecr_aws }}"
           multi-arch: "all"
       - name: Copy amazonlinux-2023 to ECR
+        if: ${{ env.TAG_EXISTS != 'true' }}
         uses: truemark/skopeo-copy-action@v1
         with:
           src-image: "docker://truemark/git:amazonlinux-2023"
@@ -96,6 +98,7 @@ jobs:
             -t truemark/git:amazonlinux-2022 \
             .
       - name: Copy ${{ env.GIT_VERSION }}-amazonlinux-2022 to ECR
+        if: ${{ env.TAG_EXISTS != 'true' }}
         uses: truemark/skopeo-copy-action@v1
         with:
           src-image: "docker://truemark/git:${{ env.GIT_VERSION }}-amazonlinux-2022"
@@ -106,6 +109,7 @@ jobs:
           dest-password: "${{ steps.ecr-login.outputs.docker_password_public_ecr_aws }}"
           multi-arch: "all"
       - name: Copy amazonlinux-2022 to ECR
+        if: ${{ env.TAG_EXISTS != 'true' }}
         uses: truemark/skopeo-copy-action@v1
         with:
           src-image: "docker://truemark/git:amazonlinux-2022"
@@ -128,6 +132,7 @@ jobs:
             -t truemark/git:amazonlinux-2 \
             .
       - name: Copy ${{ env.GIT_VERSION }}-amazonlinux-2 to ECR
+        if: ${{ env.TAG_EXISTS != 'true' }}
         uses: truemark/skopeo-copy-action@v1
         with:
           src-image: "docker://truemark/git:${{ env.GIT_VERSION }}-amazonlinux-2"
@@ -138,6 +143,7 @@ jobs:
           dest-password: "${{ steps.ecr-login.outputs.docker_password_public_ecr_aws }}"
           multi-arch: "all"
       - name: Copy amazonlinux-2 to ECR
+        if: ${{ env.TAG_EXISTS != 'true' }}
         uses: truemark/skopeo-copy-action@v1
         with:
           src-image: "docker://truemark/git:amazonlinux-2"
@@ -160,6 +166,7 @@ jobs:
             -t truemark/git:ubuntu-jammy \
             .
       - name: Copy ${{ env.GIT_VERSION }}-ubuntu-jammy to ECR
+        if: ${{ env.TAG_EXISTS != 'true' }}
         uses: truemark/skopeo-copy-action@v1
         with:
           src-image: "docker://truemark/git:${{ env.GIT_VERSION }}-ubuntu-jammy"
@@ -170,6 +177,7 @@ jobs:
           dest-password: "${{ steps.ecr-login.outputs.docker_password_public_ecr_aws }}"
           multi-arch: "all"
       - name: Copy ubuntu-jammy to ECR
+        if: ${{ env.TAG_EXISTS != 'true' }}
         uses: truemark/skopeo-copy-action@v1
         with:
           src-image: "docker://truemark/git:ubuntu-jammy"
@@ -192,6 +200,7 @@ jobs:
             -t truemark/git:ubuntu-focal \
             .
       - name: Copy ${{ env.GIT_VERSION }}-ubuntu-focal to ECR
+        if: ${{ env.TAG_EXISTS != 'true' }}
         uses: truemark/skopeo-copy-action@v1
         with:
           src-image: "docker://truemark/git:${{ env.GIT_VERSION }}-ubuntu-focal"
@@ -202,6 +211,7 @@ jobs:
           dest-password: "${{ steps.ecr-login.outputs.docker_password_public_ecr_aws }}"
           multi-arch: "all"
       - name: Copy ubuntu-focal to ECR
+        if: ${{ env.TAG_EXISTS != 'true' }}
         uses: truemark/skopeo-copy-action@v1
         with:
           src-image: "docker://truemark/git:ubuntu-focal"
@@ -224,6 +234,7 @@ jobs:
             -t truemark/git:debian-bookworm \
             .
       - name: Copy ${{ env.GIT_VERSION }}-debian-bookworm to ECR
+        if: ${{ env.TAG_EXISTS != 'true' }}
         uses: truemark/skopeo-copy-action@v1
         with:
           src-image: "docker://truemark/git:${{ env.GIT_VERSION }}-debian-bookworm"
@@ -234,6 +245,7 @@ jobs:
           dest-password: "${{ steps.ecr-login.outputs.docker_password_public_ecr_aws }}"
           multi-arch: "all"
       - name: Copy debian-bookworm to ECR
+        if: ${{ env.TAG_EXISTS != 'true' }}
         uses: truemark/skopeo-copy-action@v1
         with:
           src-image: "docker://truemark/git:debian-bookworm"
@@ -256,6 +268,7 @@ jobs:
             -t truemark/git:debian-bullseye \
             .
       - name: Copy ${{ env.GIT_VERSION }}-debian-bullseye to ECR
+        if: ${{ env.TAG_EXISTS != 'true' }}
         uses: truemark/skopeo-copy-action@v1
         with:
           src-image: "docker://truemark/git:${{ env.GIT_VERSION }}-debian-bullseye"
@@ -266,6 +279,7 @@ jobs:
           dest-password: "${{ steps.ecr-login.outputs.docker_password_public_ecr_aws }}"
           multi-arch: "all"
       - name: Copy debian-bullseye to ECR
+        if: ${{ env.TAG_EXISTS != 'true' }}
         uses: truemark/skopeo-copy-action@v1
         with:
           src-image: "docker://truemark/git:debian-bullseye"
@@ -288,6 +302,7 @@ jobs:
             -t truemark/git:alpine-3.17 \
             .
       - name: Copy ${{ env.GIT_VERSION }}-alpine-3.17 to ECR
+        if: ${{ env.TAG_EXISTS != 'true' }}
         uses: truemark/skopeo-copy-action@v1
         with:
           src-image: "docker://truemark/git:${{ env.GIT_VERSION }}-alpine-3.17"
@@ -298,6 +313,7 @@ jobs:
           dest-password: "${{ steps.ecr-login.outputs.docker_password_public_ecr_aws }}"
           multi-arch: "all"
       - name: Copy alpine-3.17 to ECR
+        if: ${{ env.TAG_EXISTS != 'true' }}
         uses: truemark/skopeo-copy-action@v1
         with:
           src-image: "docker://truemark/git:alpine-3.17"
@@ -320,6 +336,7 @@ jobs:
             -t truemark/git:alpine-3.16 \
             .
       - name: Copy ${{ env.GIT_VERSION }}-alpine-3.16 to ECR
+        if: ${{ env.TAG_EXISTS != 'true' }}
         uses: truemark/skopeo-copy-action@v1
         with:
           src-image: "docker://truemark/git:${{ env.GIT_VERSION }}-alpine-3.16"
@@ -330,6 +347,7 @@ jobs:
           dest-password: "${{ steps.ecr-login.outputs.docker_password_public_ecr_aws }}"
           multi-arch: "all"
       - name: Copy alpine-3.16 to ECR
+        if: ${{ env.TAG_EXISTS != 'true' }}
         uses: truemark/skopeo-copy-action@v1
         with:
           src-image: "docker://truemark/git:alpine-3.16"
